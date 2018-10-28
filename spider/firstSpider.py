@@ -1,5 +1,0 @@
-# -*- coding:utf-8 -*-
-# __author__ = 'wanhaoran'
-
-import requests
-

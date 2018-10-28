@@ -13,6 +13,7 @@ class SchoolMember:
 
 
 class Person:
+
     def __init__(self, sex):
         self.sex = sex
         print('Initialized Sex is {}'.format(self.sex))
