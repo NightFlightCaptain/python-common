@@ -52,9 +52,11 @@ def search(list,num):
 -关于本模块，可以查看官方文档：https://docs.python.org/2/library/bisect.html
 """
 
+
 def bisectSearch(list,num):
     i = bisect_left(list,num)
     return i
+
 
 if __name__ == '__main__':
     # print(search([1,9,16,92,154,7777,65223],7778))
