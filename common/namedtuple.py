@@ -8,5 +8,5 @@ from collections import namedtuple
 
 Friend = namedtuple("a1111",['name','age','email'])
 friend1 = Friend("wangxiaoming",16,"wangxiaoming@163.com")
-print(friend1)
+print(friend1.name)
 # friend1.name = "lixiaoming" #报错
