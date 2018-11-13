@@ -10,12 +10,14 @@ def del_space(string):
     string_split = string.split(' ')
     print(string_split)
 
-    # string_new = [i for i in string_split if i !=""]
-    # print(string_new)
+    string_list = [string_split[0]]
+    for i in range(1,len(string_split)):
+        if string_split[i] !='':
+            if string_split[i-1] !='':
+                string_list.append(" ")
+        string_list.append(string_split[i])
 
-    string_split.remove("")
-    string_result=" ".join(string_split)
+    string_result="".join(string_list)
     return string_result
 
-
-print(del_space("a bb  c"))
+print(del_space("a  bb               c"))
