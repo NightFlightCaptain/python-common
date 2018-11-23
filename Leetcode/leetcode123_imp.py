@@ -29,6 +29,9 @@
 输入: [7,6,4,3,1]
 输出: 0
 解释: 在这个情况下, 没有交易完成, 所以最大利润为 0。
+
+
+参照leetcode188
 """
 
 class Solution:
@@ -53,7 +56,26 @@ class Solution:
         #             dp[m][i] = max(dp[m][i],dp[m][i-1])
         #     return dp[-1][-1]
 
-        
+        def maxProfit(k,prices):
+            if not prices or len(prices)==0:
+                return 0
+            if k>= len(prices)//2:
+                # res = 0
+                # for i in range(1,len(prices)):
+                #     res+=prices[i]-prices[i-1] if prices[i]-prices[i-1]>0 else 0
+                # return res
+                # 一种写法
+                return sum([prices[i]-prices[i-1] if prices[i]>prices[i-1] else 0 for i in range(1,len(prices))])
+
+            dp = [[0] * len(prices) for i in range(k+1)]
+            tmp = [-prices[0]] * (k+1)
+            for m in range(1,k+1):
+                for i in range(1,len(prices)):
+                    tmp[m]=max(tmp[m],dp[m-1][i-1]-prices[i])
+                    dp[m][i] = max(tmp[m]+prices[i],dp[m][i-1])
+            return dp[-1][-1]
+
+        return maxProfit(2,prices)
 
 
 if __name__ == '__main__':
