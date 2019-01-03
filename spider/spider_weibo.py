@@ -6,8 +6,23 @@ import json
 from urllib import request
 
 
+class FileWriter(object):
+    def writer(self, path,text):
+        with open(path, 'a', encoding='utf-8') as f:
+            f.write(text + '\n')
+
+    def reader(self,path):
+        ip_list = []
+        with open(path,"r") as f:
+            lines = f.readlines()
+            for line in lines:
+                ip_t = line.strip("\n").split(" ")
+                ip_list.append((ip_t[0],ip_t[1]))
+        return ip_list
+
 class WeiboSpider(object):
     def __init__(self,id):
+        self.file_writer = FileWriter()
         self.id = id
         self.proxy_addr = '119.123.247.35:9000'
         self.containerid = 0
@@ -75,7 +90,10 @@ class WeiboSpider(object):
                             else:
                                 isSelf = True
                             text = mblog.get('text')
-                            print("原创" if isSelf else "转载"," 内容："+text)
+                            status = "原创" if isSelf else "转载"
+                            data = status+" 内容："+text
+                            self.file_writer.writer("weibo_contain.txt",data)
+
                     i+=1
                 else:
                     break
@@ -85,6 +103,6 @@ class WeiboSpider(object):
 
 
 if __name__ == "__main__":
-    w = WeiboSpider(id)
+    w = WeiboSpider()
     w.get_userinfo()
     w.get_weibo()
