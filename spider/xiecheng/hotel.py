@@ -4,14 +4,11 @@
 import random
 import re
 
-from lxml import etree
-from urllib import request
 import json
 import requests
 from bs4 import BeautifulSoup
-import jieba
 
-from spider.Ip_List_Getter import Ip_List_Getter
+from spider.spider_tools.Ip_List_Getter import Ip_List_Getter
 
 
 def get_hotels_list():
@@ -159,7 +156,7 @@ def get_hotels_list():
         for c in contents:
             print(c)
 
-    def get_hotel_detail2( id):
+    def get_hotel_detail2(id):
         url = "http://m.ctrip.com/restapi/soa2/14605/gethotelcomment?_fxpcqlniredt=09031164210005207654"
         headers = {
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8",

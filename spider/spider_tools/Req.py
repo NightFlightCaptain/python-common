@@ -3,10 +3,13 @@
 # @Author    :小栗旬
 import requests
 
-from spider.Ip_List_Getter import Ip_List_Getter
+from spider.spider_tools.Ip_List_Getter import Ip_List_Getter
 
 
 class Req:
+    """
+    包装类，自动使用了ip代理，并包装了headers头
+    """
     ip_getter = Ip_List_Getter()
     ip_getter.get_ip_list_from_txt()
 
@@ -22,23 +25,40 @@ class Req:
         "Upgrade-Insecure-Requests": "1"
     }
 
-
     # proxy = {
     #     "https": "61.128.208.94:3128"
     # }
 
     @classmethod
-    def req(self,url):
+    def get(cls, url, params=None):
         status_code = 0
-        r=None
+        r = None
+        ip = cls.ip_getter.get_a_useful_ip()
         while status_code != 200:
             try:
-                ip = self.ip_getter.get_a_useful_ip()
                 proxy = {
                     ip[0]: ip[1]
                 }
-                r = requests.get(url=url, headers=self.headers, proxies=proxy)
+                r = requests.get(url=url, headers=cls.headers, params=params, proxies=proxy)
                 status_code = r.status_code
             except Exception:
-                self.ip_getter.ip_list.remove(ip)
+                cls.ip_getter.ip_list.remove(ip)
+                ip = cls.ip_getter.get_a_useful_ip()
+        return r
+
+    @classmethod
+    def post(cls, url, params=None):
+        status_code = 0
+        r = None
+        ip = cls.ip_getter.get_a_useful_ip()
+        while status_code != 200:
+            try:
+                proxy = {
+                    ip[0]: ip[1]
+                }
+                r = requests.post(url=url, headers=cls.headers, params=params, proxies=proxy)
+                status_code = r.status_code
+            except Exception:
+                ip = cls.ip_getter.get_a_useful_ip()
+                cls.ip_getter.ip_list.remove(ip)
         return r

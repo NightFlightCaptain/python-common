@@ -1,19 +1,17 @@
 # -*- coding:utf-8 -*-
 # @Time      :2019/2/22 17:22
 # @Author    :小栗旬
-import codecs
 import csv
 import warnings
-import pandas
 
 from bs4 import BeautifulSoup
 
-from spider.Req import Req
+from spider.spider_tools.Req import Req
 
 warnings.filterwarnings('ignore')
 
 
-def get_offer_list(param,page):
+def get_offer_list(param, page):
     csv_headers = ['job_name',
                    'job_city',
                    'job_com_name',
@@ -25,7 +23,7 @@ def get_offer_list(param,page):
                    'job_detail']
 
     write_csv_header(csv_headers)
-    for i in range(1, page+1):
+    for i in range(1, page + 1):
         one_page = get_one_page(param, i)
 
         hrefs = get_hrefs(one_page)
@@ -37,13 +35,12 @@ def get_offer_list(param,page):
             write_csv_rows(csv_headers, job_detail)
 
 
-
 def get_one_page(keyword, page):
     index_url = "https://www.shixiseng.com/interns/st-intern_c-420100_?k=" + keyword + "&p="
 
     index_full_url = index_url + str(page)
 
-    response = Req.req(index_full_url)
+    response = Req.get(index_full_url)
 
     if response.status_code == 200:
         return response.text
@@ -62,14 +59,14 @@ def get_hrefs(text):
 def get_detail_page(weburl):
     detail_url = "https://www.shixiseng.com" + weburl
 
-    response = Req.req(detail_url)
+    response = Req.get(detail_url)
     if response.status_code == 200:
         return response.text
     return None
 
 
 def has_word(text):
-    words = ["c++", "前端", "php", "PHP", "C++", "安卓","嵌入式","IOS","游戏"]
+    words = ["c++", "前端", "php", "PHP", "C++", "安卓", "嵌入式", "IOS", "游戏"]
     for word in words:
         if word in text:
             return True
@@ -145,16 +142,5 @@ def write_csv_rows(csv_headers, rows):
         f_csv.writerow(rows)
 
 
-def convert_code():
-    block_size=4096
-    with codecs.open("cc.csv",'r',"gb2312") as f:
-        with codecs.open("ccc.csv",'w','utf-8') as f2:
-            while True:
-                content=f.read(block_size)
-                if not content:
-                    break
-                f2.write(content)
-
-
 if __name__ == "__main__":
-    get_offer_list("开发",5)
+    get_offer_list("开发", 5)
