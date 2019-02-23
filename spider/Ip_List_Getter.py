@@ -20,7 +20,7 @@ class Ip_List_Getter:
             'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36'
         }
         self.proxy = {
-            "https": "119.101.112.116:9999"
+            "https": "116.209.56.188:9999"
         }
 
     def get_ip_list(self):
@@ -30,7 +30,7 @@ class Ip_List_Getter:
         :return:ip_list，数组，元素类型是元祖，元祖第一个元素表示https或http，第二个元素表示ip地址
         """
         for page in range(1, 20):
-            url = "http://www.xicidaili.com/nn/" + str(page)
+            url = "http://www.xicidaili.com/wn/" + str(page)
             web_data = requests.get(url=url, headers=self.headers, proxies=self.proxy)
             print(web_data)
             soup = BeautifulSoup(web_data.text, "lxml")
@@ -41,7 +41,7 @@ class Ip_List_Getter:
                 print(ip_info)
                 tds = ip_info.find_all('td')
                 self.ip_list.append((tds[5].text, tds[1].text + ":" + tds[2].text))
-            self.write_ip_list2txt()
+            self.__write_ip_list2txt()
         return self.ip_list
 
     def __write_ip_list2txt(self):
@@ -52,7 +52,7 @@ class Ip_List_Getter:
         """
         for ip in self.ip_list:
             with open("ip_list_https.txt", "a", encoding="utf-8") as f:
-                f.write(ip[0] + " " + ip[1] + "\n")
+                f.write(ip[0].lower() + " " + ip[1] + "\n")
 
     def get_ip_list_from_txt(self):
         """
@@ -71,7 +71,7 @@ class Ip_List_Getter:
         :return: 1.http还是https 2.ip
         """
         random_one = random.choice(self.ip_list)
-        return random_one[0].lower(), random_one[1]
+        return random_one[0], random_one[1]
 
     def is_ip_useful(self,ip):
         try:
