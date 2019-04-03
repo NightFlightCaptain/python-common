@@ -42,6 +42,7 @@ class Req:
                 r = requests.get(url=url, headers=cls.headers, params=params, proxies=proxy)
                 status_code = r.status_code
             except Exception:
+                print('?')
                 cls.ip_getter.ip_list.remove(ip)
                 ip = cls.ip_getter.get_a_useful_ip()
         return r
@@ -59,6 +60,7 @@ class Req:
                 r = requests.post(url=url, headers=cls.headers, params=params, proxies=proxy)
                 status_code = r.status_code
             except Exception:
+                print('?')
                 ip = cls.ip_getter.get_a_useful_ip()
                 cls.ip_getter.ip_list.remove(ip)
         return r
