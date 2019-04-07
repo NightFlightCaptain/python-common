@@ -3,12 +3,11 @@
 # @Author    :小栗旬
 import csv
 import json
-import re
-
 import os
-
 import time
+
 from bs4 import BeautifulSoup
+from datetime import datetime, timedelta
 
 from spider.spider_tools.Req import Req
 
@@ -55,8 +54,8 @@ def get_one_topic_for_page(url, desc, dir_path):
     get_one_topic_first_page(url, desc, dir_path)
     for i in range(2, page_size + 1):
         print("搜索第一个话题:" + desc + " 的第" + str(i) + "页")
-        url = url + '&page=' + str(i)
-        get_one_topic_from2(url, desc, dir_path)
+        url_all = url + '&page=' + str(i)
+        get_one_topic_from2(url_all, desc, dir_path)
 
 
 def get_one_topic_first_page(url, desc, dir_path):
@@ -67,15 +66,15 @@ def get_one_topic_first_page(url, desc, dir_path):
     print(url)
     for content in contents:
         card_group = content.get('card_group')
-        if card_group == None:
+        if card_group is None:
             continue
         mblog = card_group[0].get('mblog')
-        if mblog == None:
+        if mblog is None:
             continue
         print(mblog)
         # id = mblog.get('id')
         title = mblog.get('text')
-        time = mblog.get('created_at')
+        time = time_handler(mblog.get('created_at'))
         comments_count = mblog.get('comments_count')
         reposts_count = mblog.get('reposts_count')
         attitudes_count = mblog.get('attitudes_count')
@@ -94,13 +93,15 @@ def get_one_topic_from2(url, desc, dir_path):
     response = Req.post(url)
     data = response.text
     print(url)
+    if json.loads(data).get('ok') == 0:
+        return
     contents = json.loads(data).get('data').get('cards')[0].get('card_group')
     for content in contents:
         mblog = content.get('mblog')
         print(mblog)
         # id = mblog.get('id')
         title = mblog.get('text')
-        time = mblog.get('created_at')
+        time = time_handler(mblog.get('created_at'))
         comments_count = mblog.get('comments_count')
         reposts_count = mblog.get('reposts_count')
         attitudes_count = mblog.get('attitudes_count')
@@ -148,7 +149,41 @@ def write_csv_rows(csv_headers, rows, desc, dir_path):
         #         f.write(soup.get_text() + "\n")
 
 
+def time_handler(publish_time):
+    """
+    微博时间格式处理
+    :param publish_time:输入的微博时间
+    :return: %Y-%m-%d %H:%M 格式
+    """
+
+    print(publish_time)
+    if "刚刚" in publish_time:
+        publish_time = datetime.now().strftime('%Y-%m-%d %H:%M')
+
+    elif "分钟" in publish_time:
+        minute = publish_time[:publish_time.find("分钟")]
+        minute = timedelta(minutes=int(minute))
+        publish_time = (datetime.now() - minute).strftime("%Y-%m-%d %H:%M")
+    elif "小时" in publish_time:
+        hour = publish_time[:publish_time.find("小时")]
+        hour = timedelta(hours=int(hour))
+        publish_time = (datetime.now() - hour).strftime("%Y-%m-%d %H:%M")
+    elif "今天" in publish_time:
+        today = datetime.now().strftime("%Y-%m-%d")
+        time = publish_time.replace('今天', '')
+        publish_time = today + " " + time
+    elif "月" in publish_time:
+        year = datetime.now().strftime("%Y")
+        publish_time = str(publish_time)
+        publish_time = year + "-" + publish_time.replace('月', '-').replace('日', '')
+    else:
+        publish_time = publish_time[:16]
+    print(publish_time)
+    return publish_time
+
+
 if __name__ == '__main__':
+    print("???")
     get_hot_topic_top10()
     # url='https://m.weibo.cn/search?containerid=100103type%3D1%26t%3D10%26q%3D%23%E6%9E%97%E4%BF%8A%E6%9D%B0%E7%BB%99%E4%B8%8A%E5%8D%8A%E8%BA%AB%E6%89%93%E9%A9%AC%E8%B5%9B%E5%85%8B%23&isnewpage=1&extparam=filter_type%3Drealtimehot%26pos%3D0%26c_type%3D31%26realpos%3D0%26flag%3D16%26display_time%3D1554296611&luicode=10000011&lfid=106003type%3D25%26t%3D3%26disable_hot%3D1%26filter_type%3Drealtimehot'
     # url = "https://m.weibo.cn/api/container/getIndex?"+url.split('?')[1]

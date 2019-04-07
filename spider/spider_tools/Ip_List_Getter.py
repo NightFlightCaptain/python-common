@@ -3,8 +3,7 @@
 # @Author    :小栗旬
 
 import random
-from urllib import request
-import json
+
 import requests
 from bs4 import BeautifulSoup
 
