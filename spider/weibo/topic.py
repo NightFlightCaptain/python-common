@@ -39,27 +39,27 @@ def get_hot_topic_top10():
         os.makedirs(dir_path)
 
     for i in range(1, 11):
-        print("搜索第一个话题")
         hot_topic = hot_topics[i]
         topic_url = hot_topic.get('scheme')
         topic_desc = hot_topic.get('desc')
+        print("搜索第"+str(i)+"个话题:"+topic_desc)
         get_one_topic_for_page(topic_url, topic_desc, dir_path)
 
 
 def get_one_topic_for_page(url, desc, dir_path):
-    print("搜索第一个话题:" + desc)
+
     url = "https://m.weibo.cn/api/container/getIndex?" + url.split('?')[1]
     write_csv_header(csv_headers, desc, dir_path)
     page_size = 10
     get_one_topic_first_page(url, desc, dir_path)
     for i in range(2, page_size + 1):
-        print("搜索第一个话题:" + desc + " 的第" + str(i) + "页")
+        print("搜索话题[" + desc + "]的第" + str(i) + "页")
         url_all = url + '&page=' + str(i)
         get_one_topic_from2(url_all, desc, dir_path)
 
 
 def get_one_topic_first_page(url, desc, dir_path):
-    print("搜索第一个话题:" + desc + " 的第1页")
+    print("搜索话题[" + desc + "]的第1页")
     response = Req.post(url)
     data = response.text
     contents = json.loads(data).get('data').get('cards')
@@ -71,7 +71,6 @@ def get_one_topic_first_page(url, desc, dir_path):
         mblog = card_group[0].get('mblog')
         if mblog is None:
             continue
-        print(mblog)
         # id = mblog.get('id')
         title = mblog.get('text')
         time = time_handler(mblog.get('created_at'))
@@ -80,6 +79,7 @@ def get_one_topic_first_page(url, desc, dir_path):
         attitudes_count = mblog.get('attitudes_count')
         soup = BeautifulSoup(title)
         user_name = mblog.get('user').get('screen_name')
+        print(user_name+" "+time+" "+soup.get_text())
         csv_c = {'用户名': user_name,
                  '文本内容': soup.get_text(),
                  '发布时间': time,
@@ -98,7 +98,7 @@ def get_one_topic_from2(url, desc, dir_path):
     contents = json.loads(data).get('data').get('cards')[0].get('card_group')
     for content in contents:
         mblog = content.get('mblog')
-        print(mblog)
+
         # id = mblog.get('id')
         title = mblog.get('text')
         time = time_handler(mblog.get('created_at'))
@@ -107,6 +107,7 @@ def get_one_topic_from2(url, desc, dir_path):
         attitudes_count = mblog.get('attitudes_count')
         soup = BeautifulSoup(title)
         user_name = mblog.get('user').get('screen_name')
+        print(user_name+" "+time+" "+soup.get_text())
         csv_c = {'用户名': user_name,
                  '文本内容': soup.get_text(),
                  '发布时间': time,
@@ -172,6 +173,10 @@ def time_handler(publish_time):
         today = datetime.now().strftime("%Y-%m-%d")
         time = publish_time.replace('今天', '')
         publish_time = today + " " + time
+    elif "昨天" in publish_time:
+        day = timedelta(days=1)
+        today = (datetime.today()-day).strftime("%Y-%m-%d")
+        publish_time = publish_time.replace('昨天',today)
     elif "月" in publish_time:
         year = datetime.now().strftime("%Y")
         publish_time = str(publish_time)
@@ -183,7 +188,7 @@ def time_handler(publish_time):
 
 
 if __name__ == '__main__':
-    print("???")
+    print("爬取正在开始")
     get_hot_topic_top10()
     # url='https://m.weibo.cn/search?containerid=100103type%3D1%26t%3D10%26q%3D%23%E6%9E%97%E4%BF%8A%E6%9D%B0%E7%BB%99%E4%B8%8A%E5%8D%8A%E8%BA%AB%E6%89%93%E9%A9%AC%E8%B5%9B%E5%85%8B%23&isnewpage=1&extparam=filter_type%3Drealtimehot%26pos%3D0%26c_type%3D31%26realpos%3D0%26flag%3D16%26display_time%3D1554296611&luicode=10000011&lfid=106003type%3D25%26t%3D3%26disable_hot%3D1%26filter_type%3Drealtimehot'
     # url = "https://m.weibo.cn/api/container/getIndex?"+url.split('?')[1]
