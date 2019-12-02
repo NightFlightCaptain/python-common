@@ -4,6 +4,7 @@
 
 import random
 
+import os
 import requests
 from bs4 import BeautifulSoup
 
@@ -59,11 +60,14 @@ class Ip_List_Getter:
 
         :return: None
         """
-        with open("ip_list_https.txt", "r") as f:
-            lines = f.readlines()
-            for line in lines:
-                ip_t = line.strip("\n").split(" ")
-                self.ip_list.append((ip_t[0], ip_t[1]))
+        if not os.path.exists("ip_list_https.txt"):
+            self.get_ip_list()
+        else:
+            with open("ip_list_https.txt", "r") as f:
+                lines = f.readlines()
+                for line in lines:
+                    ip_t = line.strip("\n").split(" ")
+                    self.ip_list.append((ip_t[0], ip_t[1]))
 
     def __get_random_ip(self):
         """
@@ -72,7 +76,7 @@ class Ip_List_Getter:
         random_one = random.choice(self.ip_list)
         return random_one[0], random_one[1]
 
-    def is_ip_useful(self,ip):
+    def is_ip_useful(self, ip):
         try:
             url = "http://www.baidu.com/"
             proxies = {ip[0]: ip[1]}
@@ -83,9 +87,9 @@ class Ip_List_Getter:
             # 发起请求
             # print(res.status_code)  # 返回响应码
         except Exception as e:
-            print(e)
+            # print(e)
             return False
-        return res.status_code ==200
+        return res.status_code == 200
 
     def get_a_useful_ip(self):
         ip = self.__get_random_ip()

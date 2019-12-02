@@ -95,7 +95,7 @@ def get_one_topic_from2(url, desc, dir_path):
     print(url)
     if json.loads(data).get('ok') == 0:
         return
-    contents = json.loads(data).get('data').get('cards')[0].get('card_group')
+    contents = json.loads(data).get('data').get('cards')
     for content in contents:
         mblog = content.get('mblog')
 

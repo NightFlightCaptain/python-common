@@ -13,7 +13,7 @@ class Req:
     ip_getter = Ip_List_Getter()
     ip_getter.get_ip_list_from_txt()
 
-    headers = {
+    selfheaders = {
         "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8",
         "Accept-Encoding": "gzip, deflate, br",
         "Accept-Language": "en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7",
@@ -30,7 +30,7 @@ class Req:
     # }
 
     @classmethod
-    def get(cls, url, params=None):
+    def get(cls, url, params=None,headers=selfheaders):
         status_code = 0
         r = None
         ip = cls.ip_getter.get_a_useful_ip()
@@ -39,15 +39,15 @@ class Req:
                 proxy = {
                     ip[0]: ip[1]
                 }
-                r = requests.get(url=url, headers=cls.headers, params=params, proxies=proxy)
+                r = requests.get(url=url, headers=headers, params=params, proxies=proxy)
                 status_code = r.status_code
-            except Exception:
+            except Exception as err:
                 cls.ip_getter.ip_list.remove(ip)
                 ip = cls.ip_getter.get_a_useful_ip()
         return r
 
     @classmethod
-    def post(cls, url, params=None):
+    def post(cls, url, params=None,headers=selfheaders):
         status_code = 0
         r = None
         ip = cls.ip_getter.get_a_useful_ip()
@@ -56,7 +56,7 @@ class Req:
                 proxy = {
                     ip[0]: ip[1]
                 }
-                r = requests.post(url=url, headers=cls.headers, params=params, proxies=proxy)
+                r = requests.post(url=url, headers=headers, params=params, proxies=proxy)
                 status_code = r.status_code
             except Exception:
                 ip = cls.ip_getter.get_a_useful_ip()
