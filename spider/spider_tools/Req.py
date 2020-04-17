@@ -34,7 +34,7 @@ class Req:
         status_code = 0
         r = None
         ip = cls.ip_getter.get_a_useful_ip()
-        while status_code != 200:
+        while status_code != 200 and cls.ip_getter.ip_list.__len__()!=0:
             try:
                 proxy = {
                     ip[0]: ip[1]
@@ -51,7 +51,7 @@ class Req:
         status_code = 0
         r = None
         ip = cls.ip_getter.get_a_useful_ip()
-        while status_code != 200:
+        while status_code != 200 and cls.ip_getter.ip_list.__len__()!=0:
             try:
                 proxy = {
                     ip[0]: ip[1]
@@ -59,6 +59,6 @@ class Req:
                 r = requests.post(url=url, headers=headers, params=params, proxies=proxy)
                 status_code = r.status_code
             except Exception:
-                ip = cls.ip_getter.get_a_useful_ip()
                 cls.ip_getter.ip_list.remove(ip)
+                ip = cls.ip_getter.get_a_useful_ip()
         return r

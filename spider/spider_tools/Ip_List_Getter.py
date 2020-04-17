@@ -60,10 +60,10 @@ class Ip_List_Getter:
 
         :return: None
         """
-        if not os.path.exists("ip_list_https.txt"):
+        if not os.path.exists(os.path.join(os.path.dirname(os.getcwd()),"ip_list_https.txt")):
             self.get_ip_list()
         else:
-            with open("ip_list_https.txt", "r") as f:
+            with open(os.path.join(os.path.dirname(os.getcwd()),"ip_list_https.txt"), "r") as f:
                 lines = f.readlines()
                 for line in lines:
                     ip_t = line.strip("\n").split(" ")

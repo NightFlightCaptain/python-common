@@ -1,62 +1,41 @@
 # -*- coding:utf-8 -*-
 # __author__ = 'wanhaoran'
 
-import urllib.request
 import json
-from urllib import request
+
+import time
+
+from spider.spider_tools.Req import Req
 
 
 class FileWriter(object):
-    def writer(self, path,text):
+    def writer(self, path, text):
         with open(path, 'a', encoding='utf-8') as f:
             f.write(text + '\n')
 
-    def reader(self,path):
-        ip_list = []
-        with open(path,"r") as f:
-            lines = f.readlines()
-            for line in lines:
-                ip_t = line.strip("\n").split(" ")
-                ip_list.append((ip_t[0],ip_t[1]))
-        return ip_list
 
 class WeiboSpider(object):
-    def __init__(self,id):
+    def __init__(self, id):
         self.file_writer = FileWriter()
         self.id = id
-        self.proxy_addr = '119.123.247.35:9000'
         self.containerid = 0
 
-    '''
-    定义页面打开函数
-    '''
-    def use_proxy(self, url):
-        req = request.Request(url)
-        req.add_header('User-Agent',
-                       "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.221 Safari/537.36 SE 2.X MetaSr 1.0")
-        proxy = urllib.request.ProxyHandler({'http': self.proxy_addr})
-        opener = urllib.request.build_opener(proxy,request.HTTPHandler)
-        request.install_opener(opener)
-
-        data = request.urlopen(req).read().decode('utf-8')
-        return data
-
     # 获取containerid
-    def get_containerid(self,content):
+    def get_containerid(self, content):
         for tab in content.get('tabsInfo').get('tabs'):
-            if tab.get('tab_type')== 'weibo':
+            if tab.get('tab_type') == 'weibo':
                 self.containerid = tab.get('containerid')
                 break
 
     # 获取用户信息
     def get_userinfo(self):
-        url = 'https://m.weibo.cn/api/container/getIndex?uid='+str(self.id)+'&type=uid&value='+str(self.id)
-        data = self.use_proxy(url)
+        url = 'https://m.weibo.cn/api/container/getIndex?uid=' + str(self.id) + '&type=uid&value=' + str(self.id)
+        data = Req.get(url).content
         content = json.loads(data).get('data')
 
         # 获取containerid
         for tab in content.get('tabsInfo').get('tabs'):
-            if tab.get('tab_type')== 'weibo':
+            if tab.get('tab_type') == 'weibo':
                 self.containerid = tab.get('containerid')
 
         # 获取用户信息
@@ -71,13 +50,14 @@ class WeiboSpider(object):
     '''
     获取微博内容
     '''
+
     def get_weibo(self):
-        i =0
+        i = 0
         while True:
-            url = 'https://m.weibo.cn/api/container/getIndex?uid='+str(self.id)+'&type=uid&value='+str(self.id)+\
-                  '&containerid='+str(self.containerid)+'&page='+str(i)
+            url = 'https://m.weibo.cn/api/container/getIndex?uid=' + str(self.id) + '&type=uid&value=' + str(self.id) + \
+                  '&containerid=' + str(self.containerid) + '&page=' + str(i)
             try:
-                data = self.use_proxy(url)
+                data = Req.get(url).content
                 content = json.loads(data).get('data')
                 cards = content.get('cards')
                 if len(cards) > 0:
@@ -91,10 +71,11 @@ class WeiboSpider(object):
                                 isSelf = True
                             text = mblog.get('text')
                             status = "原创" if isSelf else "转载"
-                            data = status+" 内容："+text
-                            self.file_writer.writer("weibo_contain.txt",data)
+                            data = status + " 内容：" + text
+                            # print(data)
+                            self.file_writer.writer(str(self.id)+"_"+str(time.strftime('%Y%m%d', time.localtime(time.time())))+"_weibo_contain.txt", data)
 
-                    i+=1
+                    i += 1
                 else:
                     break
             except Exception as e:
