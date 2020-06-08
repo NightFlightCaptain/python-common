@@ -19,9 +19,6 @@ class Ip_List_Getter:
         self.headers = {
             'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36'
         }
-        self.proxy = {
-            "https": "116.209.56.188:9999"
-        }
 
     def get_ip_list(self):
         """
@@ -29,13 +26,11 @@ class Ip_List_Getter:
 
         :return:ip_list，数组，元素类型是元祖，元祖第一个元素表示https或http，第二个元素表示ip地址
         """
-        for page in range(1, 20):
-            url = "http://www.xicidaili.com/wn/" + str(page)
-            web_data = requests.get(url=url, headers=self.headers, proxies=self.proxy)
-            print(web_data)
+        for page in range(1, 3):
+            url = "http://www.xicidaili.com/nn/" + str(page)
+            web_data = requests.get(url=url, headers=self.headers)
             soup = BeautifulSoup(web_data.text, "lxml")
             ips = soup.find_all('tr')
-            print(ips)
             for i in range(2, len(ips)):
                 ip_info = ips[i]
                 print(ip_info)
@@ -46,12 +41,12 @@ class Ip_List_Getter:
 
     def __write_ip_list2txt(self):
         """
-        将ip_list以增加的形式写入到txt文本中
+        将ip_list以写的形式写入到txt文本中
 
         :return:None
         """
         for ip in self.ip_list:
-            with open("ip_list_https.txt", "a", encoding="utf-8") as f:
+            with open(os.path.join(os.path.dirname(os.getcwd()), "ip_list_https.txt"), "w", encoding="utf-8") as f:
                 f.write(ip[0].lower() + " " + ip[1] + "\n")
 
     def get_ip_list_from_txt(self):
@@ -60,10 +55,10 @@ class Ip_List_Getter:
 
         :return: None
         """
-        if not os.path.exists(os.path.join(os.path.dirname(os.getcwd()),"ip_list_https.txt")):
+        if not os.path.exists(os.path.join(os.path.dirname(os.getcwd()), "ip_list_https.txt")):
             self.get_ip_list()
         else:
-            with open(os.path.join(os.path.dirname(os.getcwd()),"ip_list_https.txt"), "r") as f:
+            with open(os.path.join(os.path.dirname(os.getcwd()), "ip_list_https.txt"), "r") as f:
                 lines = f.readlines()
                 for line in lines:
                     ip_t = line.strip("\n").split(" ")
@@ -76,24 +71,44 @@ class Ip_List_Getter:
         random_one = random.choice(self.ip_list)
         return random_one[0], random_one[1]
 
-    def is_ip_useful(self, ip):
+    def is_ip_useful(self, ip) -> bool:
         try:
             url = "http://www.baidu.com/"
             proxies = {ip[0]: ip[1]}
             # 空白位置为测试代理ip和代理ip使用端口
-            headers = {"User-Agent": "Mozilla/5.0"}
+            headers = {
+                "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36"}
             # 响应头
             res = requests.get(url, proxies=proxies, headers=headers)
+            print("get proxt status code:", res.status_code, res)
             # 发起请求
             # print(res.status_code)  # 返回响应码
         except Exception as e:
-            # print(e)
+            print("test proxy err,", e)
             return False
         return res.status_code == 200
 
-    def get_a_useful_ip(self):
+    def get_a_useful_ip(self) -> ():
+        """
+        从ip_list中获取一个ip，最多循环5次
+        :return:
+        """
         ip = self.__get_random_ip()
 
-        while not self.is_ip_useful(ip):
+        count = 0
+        while count < 5 and not self.is_ip_useful(ip):
             ip = self.__get_random_ip()
+            count += 1
         return ip
+
+    def test_all_ip(self):
+        self.get_ip_list_from_txt()
+        for ip in self.ip_list[::-1]:
+            if not self.is_ip_useful(ip):
+                self.ip_list.remove(ip)
+        self.__write_ip_list2txt()
+
+
+if __name__ == '__main__':
+    ip = Ip_List_Getter()
+    ip.test_all_ip()

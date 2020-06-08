@@ -30,11 +30,12 @@ class Req:
     # }
 
     @classmethod
-    def get(cls, url, params=None,headers=selfheaders):
+    def get(cls, url, params=None,headers=selfheaders) -> requests.Response:
         status_code = 0
         r = None
         ip = cls.ip_getter.get_a_useful_ip()
-        while status_code != 200 and cls.ip_getter.ip_list.__len__()!=0:
+        count = 0
+        while count <5 and status_code != 200 and cls.ip_getter.ip_list.__len__()!=0:
             try:
                 proxy = {
                     ip[0]: ip[1]
@@ -42,8 +43,11 @@ class Req:
                 r = requests.get(url=url, headers=headers, params=params, proxies=proxy)
                 status_code = r.status_code
             except Exception as err:
+                print("get target err,",status_code," ",err)
                 cls.ip_getter.ip_list.remove(ip)
                 ip = cls.ip_getter.get_a_useful_ip()
+            finally:
+                count+=1
         return r
 
     @classmethod
@@ -62,3 +66,9 @@ class Req:
                 cls.ip_getter.ip_list.remove(ip)
                 ip = cls.ip_getter.get_a_useful_ip()
         return r
+
+
+if __name__ == '__main__':
+    req= Req()
+    resp=req.get("https://www.baidu.com")
+    print(resp.text)
