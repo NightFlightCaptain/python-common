@@ -27,7 +27,7 @@ class Ip_List_Getter:
 
         :return:ip_list，数组，元素类型是元祖，元祖第一个元素表示https或http，第二个元素表示ip地址
         """
-        for page in range(1, 10):
+        for page in range(1, 2):
             url = "http://www.xicidaili.com/nn/" + str(page)
             web_data = requests.get(url=url, headers=self.headers)
             soup = BeautifulSoup(web_data.text, "lxml")
