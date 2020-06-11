@@ -26,7 +26,7 @@ class Ip_List_Getter:
 
         :return:ip_list，数组，元素类型是元祖，元祖第一个元素表示https或http，第二个元素表示ip地址
         """
-        for page in range(1, 3):
+        for page in range(1, 10):
             url = "http://www.xicidaili.com/nn/" + str(page)
             web_data = requests.get(url=url, headers=self.headers)
             soup = BeautifulSoup(web_data.text, "lxml")
@@ -39,14 +39,14 @@ class Ip_List_Getter:
             self.__write_ip_list2txt()
         return self.ip_list
 
-    def __write_ip_list2txt(self):
+    def __write_ip_list2txt(self, file_name="ip_list_https.txt"):
         """
         将ip_list以写的形式写入到txt文本中
 
         :return:None
         """
-        for ip in self.ip_list:
-            with open(os.path.join(os.path.dirname(os.getcwd()), "ip_list_https.txt"), "w", encoding="utf-8") as f:
+        with open(os.path.join(os.path.dirname(os.getcwd()), file_name), "w", encoding="utf-8") as f:
+            for ip in self.ip_list:
                 f.write(ip[0].lower() + " " + ip[1] + "\n")
 
     def get_ip_list_from_txt(self):
@@ -55,10 +55,10 @@ class Ip_List_Getter:
 
         :return: None
         """
-        if not os.path.exists(os.path.join(os.path.dirname(os.getcwd()), "ip_list_https.txt")):
+        if not os.path.exists(os.path.join(os.path.dirname(os.getcwd()), "useful_ip_list.txt")):
             self.get_ip_list()
         else:
-            with open(os.path.join(os.path.dirname(os.getcwd()), "ip_list_https.txt"), "r") as f:
+            with open(os.path.join(os.path.dirname(os.getcwd()), "useful_ip_list.txt"), "r") as f:
                 lines = f.readlines()
                 for line in lines:
                     ip_t = line.strip("\n").split(" ")
@@ -101,14 +101,15 @@ class Ip_List_Getter:
             count += 1
         return ip
 
-    def test_all_ip(self):
-        self.get_ip_list_from_txt()
+    def test_all_ip(self, file_name):
+
         for ip in self.ip_list[::-1]:
             if not self.is_ip_useful(ip):
                 self.ip_list.remove(ip)
-        self.__write_ip_list2txt()
+        self.__write_ip_list2txt(file_name)
 
 
 if __name__ == '__main__':
     ip = Ip_List_Getter()
-    ip.test_all_ip()
+    ip.get_ip_list()
+    ip.test_all_ip("useful_ip_list.txt")

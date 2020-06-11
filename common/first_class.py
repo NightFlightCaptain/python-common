@@ -3,6 +3,8 @@
 
 
 class SchoolMember:
+    schoolName = 'hust'
+
     def __init__(self, name, age):
         self.name = name
         self.age = age
@@ -35,5 +37,10 @@ class Teacher(Person, SchoolMember):
 
 
 teacher = Teacher("Jcb", 11, 20000, 'M')
-teacher.tell()
+teacher.schoolName = '222'
+Teacher.schoolName = "111"
 
+print(teacher.schoolName)
+
+teacher2 = Teacher("Lyj",21,30000,'M')
+print(teacher2.schoolName)
